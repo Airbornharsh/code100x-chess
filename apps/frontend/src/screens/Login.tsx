@@ -15,6 +15,30 @@ const Login = () => {
     window.open(`${BACKEND_URL}/auth/github`, "_self");
   };
 
+  const guest = async () => {
+    try{
+      const response = await fetch(`${BACKEND_URL}/auth/guest`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          username: 'HARSH',
+          password: "78237458738v570edvadfasfe"
+        })
+      });
+      const data = await response.json();
+      console.log("data",data);
+      if (response.ok){
+        window.location.reload();
+      }else{
+        alert("Error");
+      }
+    }catch(e){
+      console.log(e);
+    }
+  }
+
   
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-gray-900 text-white">
@@ -51,7 +75,7 @@ const Login = () => {
           />
           <button
             className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition-colors duration-300"
-            onClick={() => navigate('/game/random')}
+            onClick={guest}
           >
             Enter as guest
           </button>

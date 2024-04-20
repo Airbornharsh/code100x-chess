@@ -79,6 +79,7 @@ enum TimeControl {
 }
 
 enum AuthProvider {
+  USERNAME
   EMAIL
   GOOGLE
   FACEBOOK

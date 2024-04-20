@@ -1,9 +1,11 @@
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const GithubStrategy = require("passport-github2").Strategy;
 const FacebookStrategy = require("passport-facebook").Strategy;
+const LocalStrategy = require("passport-local").Strategy;
 import passport from "passport";
 import dotenv from "dotenv";
 import { db } from "./db";
+import { v4 } from "uuid";
 
 dotenv.config();
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || "your_google_client_id";
@@ -57,7 +59,8 @@ export function initPassport() {
       async function (accessToken: string, refreshToken: string, profile: any, done: (error: any, user?: any) => void) {
         const user = await db.user.upsert({
           create: {
-            email: profile.emails[0].value,
+            email: `${Math.random()}@gmail.com`,
+            // email: profile.emails[0].value,
             name: profile.displayName,
             provider: "GITHUB",
           },
@@ -65,7 +68,8 @@ export function initPassport() {
             name: profile.displayName,
           },
           where: {
-            email: profile.emails[0].value,
+            email: `${Math.random()}@gmail.com`,
+            // email: profile.emails[0].value,
           }
         });
 
@@ -73,6 +77,31 @@ export function initPassport() {
       }
     )
   );
+
+  passport.use(new LocalStrategy(
+    async function verify(username:string, password:string, done: (error: any, user?: any) => void) {
+      console.log(username);
+      if (!username) {
+        username = "GUEST";
+      }
+      const id = v4();
+      const user = await db.user.upsert({
+        create: {
+          id,
+          email: `${id}@example.com`,
+          name: username,
+          provider: "USERNAME",
+        },
+        update: {
+          name: username,
+        },
+        where: {
+          email: `${id}@example.com`,
+        }
+      });
+      done(null, user);
+    }
+  ));
 
   passport.serializeUser(function(user: any, cb) {
     process.nextTick(function() {
